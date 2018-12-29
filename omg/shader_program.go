@@ -8,8 +8,8 @@ import (
 )
 
 type shaderProgram struct {
-	vertexSource, fragmentSource string
-	vertexShader, fragmentShader uint32
+	vertexSource, fragmentSource          string
+	vertexShader, fragmentShader, program uint32
 }
 
 func newShaderProgram(vertexSource, fragmentSource string) *shaderProgram {
@@ -22,7 +22,7 @@ func newShaderProgram(vertexSource, fragmentSource string) *shaderProgram {
 
 func (sp *shaderProgram) compile() error {
 	sp.vertexShader = gl.CreateShader(gl.VERTEX_SHADER)
-	vertexSourceStr, free := gl.Strs()
+	vertexSourceStr, free := gl.Strs(sp.vertexSource)
 	gl.ShaderSource(sp.vertexShader, 1, vertexSourceStr, nil)
 	free()
 	gl.CompileShader(sp.vertexShader)
@@ -39,7 +39,7 @@ func (sp *shaderProgram) compile() error {
 	}
 
 	sp.fragmentShader = gl.CreateShader(gl.FRAGMENT_SHADER)
-	fragmentSourceStr, free := gl.Strs()
+	fragmentSourceStr, free := gl.Strs(sp.fragmentSource + "\x00")
 	gl.ShaderSource(sp.fragmentShader, 1, fragmentSourceStr, nil)
 	free()
 	gl.CompileShader(sp.fragmentShader)
@@ -53,5 +53,16 @@ func (sp *shaderProgram) compile() error {
 
 		return fmt.Errorf("failed to compile fragment shader: %v", log)
 	}
+
+	sp.program = gl.CreateProgram()
+	gl.AttachShader(sp.program, sp.vertexShader)
+	gl.AttachShader(sp.program, sp.fragmentShader)
+	gl.LinkProgram(sp.program)
+	gl.DeleteShader(sp.fragmentShader)
+	gl.DeleteShader(sp.vertexShader)
 	return nil
+}
+
+func (sp *shaderProgram) use() {
+	gl.UseProgram(sp.program)
 }

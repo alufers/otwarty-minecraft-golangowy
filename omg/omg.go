@@ -44,11 +44,18 @@ func Main() {
 	#extension GL_ARB_separate_shader_objects : enable
 	#extension GL_ARB_shading_language_420pack : enable
 	layout (location = 0) in vec3 aPos;
-	
-	void main()
-	{
-		gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-	}`, `#version 410 core
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
+
+out vec3 ourColor;
+out vec2 TexCoord;
+
+void main()
+{
+    gl_Position = vec4(aPos, 1.0);
+    ourColor = aColor;
+    TexCoord = aTexCoord;
+}`, `#version 410 core
 	out vec4 FragColor;
 	
 	void main()
@@ -61,15 +68,19 @@ func Main() {
 		panic(err)
 	}
 
-	vertices := []float32{
-		-0.5, -0.5, 0.0,
-		0.5, -0.5, 0.0,
-		0.0, 0.5, 0.0,
-	}
-
 	m := &mesh{
 		shaderProgram: shader,
-		vertices:      vertices,
+		vertices: []float32{
+			// positions          // colors           // texture coords
+			0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, // top right
+			0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, // bottom right
+			-0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, // bottom left
+			-0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, // top left
+		},
+		indices: []uint32{
+			0, 1, 3, // first triangle
+			1, 2, 3, // second triangle
+		},
 	}
 	m.bindBuffers()
 
@@ -81,5 +92,6 @@ func Main() {
 		win.SwapBuffers()
 		glfw.PollEvents()
 	}
+	m.dispose()
 	glfw.Terminate()
 }

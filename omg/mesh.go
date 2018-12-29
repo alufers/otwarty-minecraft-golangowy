@@ -1,8 +1,6 @@
 package omg
 
 import (
-	"fmt"
-
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
@@ -16,7 +14,6 @@ type mesh struct {
 }
 
 func (m *mesh) bindBuffers() {
-	fmt.Println(m)
 	gl.GenVertexArrays(1, &m.vao)
 	gl.GenBuffers(1, &m.vbo)
 	gl.GenBuffers(1, &m.ebo)

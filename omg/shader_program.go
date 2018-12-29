@@ -68,3 +68,21 @@ func (sp *shaderProgram) compileSingleShader(source string, shaderType uint32) (
 func (sp *shaderProgram) use() {
 	gl.UseProgram(sp.program)
 }
+
+// setBool sets a boolean uniform. The shader must be in use.
+func (sp *shaderProgram) setBool(name *uint8, value bool) {
+	if value {
+		gl.Uniform1i(gl.GetUniformLocation(sp.program, name), 1)
+	}
+
+	gl.Uniform1i(gl.GetUniformLocation(sp.program, name), 0)
+}
+
+func (sp *shaderProgram) setInt32(name *uint8, value int32) {
+	gl.Uniform1i(gl.GetUniformLocation(sp.program, name), value)
+}
+
+func (sp *shaderProgram) setFloat32(name *uint8, value float32) {
+
+	gl.Uniform1f(gl.GetUniformLocation(sp.program, name), value)
+}

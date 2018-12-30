@@ -26,7 +26,7 @@ func Main() {
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
-	win, err := glfw.CreateWindow(800, 600, "Hello world", nil, nil)
+	win, err := glfw.CreateWindow(800, 600, "otwarty minecraft golangowy", nil, nil)
 
 	if err != nil {
 		panic(fmt.Errorf("could not create opengl renderer: %v", err))
@@ -57,10 +57,14 @@ void main()
     TexCoord = aTexCoord;
 }`, `#version 410 core
 	out vec4 FragColor;
-	
+	in vec3 ourColor;
+	in vec2 TexCoord;
+
+	uniform sampler2D ourTexture;
+
 	void main()
 	{
-		FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+		FragColor = texture(ourTexture, TexCoord);
 	}`)
 	err = shader.compile()
 
@@ -82,8 +86,14 @@ void main()
 			1, 2, 3, // second triangle
 		},
 	}
+
 	m.bindBuffers()
 
+	t := newTexture("textures/grass_side.png")
+	err = t.load()
+	if err != nil {
+		panic(err)
+	}
 	for !win.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 

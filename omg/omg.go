@@ -60,11 +60,11 @@ void main()
 	in vec3 ourColor;
 	in vec2 TexCoord;
 
-	uniform sampler2D ourTexture;
+	uniform sampler2D albedo;
 
 	void main()
 	{
-		FragColor = texture(ourTexture, TexCoord);
+		FragColor = texture(albedo, TexCoord);
 	}`)
 	err = shader.compile()
 
@@ -97,6 +97,7 @@ void main()
 	for !win.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
+		shader.setTexture(uniformAlbedo, t)
 		m.draw()
 
 		win.SwapBuffers()

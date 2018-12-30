@@ -7,9 +7,23 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
+var textureUnits = []uint32{
+	gl.TEXTURE0,
+	gl.TEXTURE1,
+	gl.TEXTURE2,
+	gl.TEXTURE3,
+	gl.TEXTURE4,
+	gl.TEXTURE5,
+	gl.TEXTURE6,
+	gl.TEXTURE7,
+	gl.TEXTURE8,
+	gl.TEXTURE9,
+}
+
 type shaderProgram struct {
 	vertexSource, fragmentSource          string
 	vertexShader, fragmentShader, program uint32
+	textureUnitCounter                    int32
 }
 
 func newShaderProgram(vertexSource, fragmentSource string) *shaderProgram {
@@ -67,6 +81,7 @@ func (sp *shaderProgram) compileSingleShader(source string, shaderType uint32) (
 // use enables this shader in opengl for next draw calls
 func (sp *shaderProgram) use() {
 	gl.UseProgram(sp.program)
+	sp.textureUnitCounter = 0
 }
 
 // setBool sets a boolean uniform. The shader must be in use.
@@ -85,4 +100,11 @@ func (sp *shaderProgram) setInt32(name *uint8, value int32) {
 func (sp *shaderProgram) setFloat32(name *uint8, value float32) {
 
 	gl.Uniform1f(gl.GetUniformLocation(sp.program, name), value)
+}
+
+func (sp *shaderProgram) setTexture(name *uint8, tex *texture) {
+	gl.ActiveTexture(textureUnits[sp.textureUnitCounter])
+	tex.bind()
+	sp.setInt32(name, sp.textureUnitCounter)
+	sp.textureUnitCounter++
 }
